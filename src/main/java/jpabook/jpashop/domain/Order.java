@@ -25,10 +25,15 @@ public class Order {
     @Column(name = "order_id")
     private Long id;
 
+//  LAZY는 필요할 때까지 해당 연관된 엔티티를 로딩하지 않는 방식입니다.
+//  즉, Order 객체가 로딩될 때 Member 객체는 자동으로 로딩되지 않고,
+//  실제로 member 필드를 참조하려고 할 때 DB에서 조회가 이루어집니다
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member; //주문 회원
 
+    //cascade = CascadeType.ALL은 전파(cascade) 옵션을 설정하는 부분입니다.
+    // 이 설정은 Order 엔티티에 대한 변경 사항이 OrderItem 엔티티에도 전파되도록 합니다
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 
