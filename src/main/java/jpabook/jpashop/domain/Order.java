@@ -37,6 +37,7 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    // 이 설정은 Order가 저장될 때 Delivery도 자동으로 저장되고, 삭제될 때 Delivery도 함께 삭제되도록 합니다.
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_id")
     private Delivery delivery; //배송정보
