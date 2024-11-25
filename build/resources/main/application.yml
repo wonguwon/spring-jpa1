@@ -17,7 +17,7 @@ spring:
 
 logging.level:
   org.hibernate.SQL: debug # hibernate로 생성되는 모든 SQL 쿼리를 디버깅 목적으로 로그를 통해 출력합니다.
-  org.hibernate.orm.jdbc.bind: trace #스프링 부트 3.x, hibernate6
+  org.hibernate.orm.jdbc.bind: trace #쿼리의 변수정보를 확인하고 싶을 때
 
 server:
   port: 8081
