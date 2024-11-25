@@ -14,7 +14,7 @@ public class MemberRepository {
     EntityManager em;
 
     public Long save(Member member) {
-        em.persist(member); //persist시점에 이미 id가 생성된다.
+        em.persist(member); //persist시점에 이미 id가 생성된다. -> 단 insert가 되는 것은 아니다. flush가 될때 insert가 되는 것이다.
         return member.getId();
     }
 
