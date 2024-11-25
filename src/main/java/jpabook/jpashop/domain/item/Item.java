@@ -14,7 +14,7 @@ import java.util.List;
 //구분컬럼을 지정함
 @DiscriminatorColumn(name = "dtype")
 @Getter @Setter
-//확장성을 위해 공통부분의 필드만 가지고 사용할 수 있도록 추상클래스로 작성
+//상위 클래스는 공통 속성의 모음일 뿐 객체화할 일이 없기 때문에 추상 클래스로 만들 것을 권장
 public abstract class Item {
     @Id @GeneratedValue
     @Column(name = "item_id")
