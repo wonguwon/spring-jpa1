@@ -17,7 +17,7 @@ public class ItemRepository{
     public void save(Item item) {
         if (item.getId() == null) { //새롭게 생성하는 객체
             em.persist(item);
-        } else {//이미 등록된 걸 가져오는 것(유사 업데이트)
+        } else {//이미 등록된 걸 가져오는 것(유사 업데이트) -> 모든값을 변경하기 때문에 사용x
             em.merge(item);
         }
     }

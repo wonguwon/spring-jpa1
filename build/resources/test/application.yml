@@ -1,23 +1,20 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:test
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: create #'create' -> 애플리케이션이 시작될 때마다 데이터베이스 테이블을 새로 생성합니다.
-    properties:
-      hibernate:
-#        show_sql: true
-        format_sql: true # SQL 쿼리를 포맷팅해서 보기 좋게 출력합니다.
-  application:
-    name: jpashop
+#  datasource:
+#    url: jdbc:h2:mem:test
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: create #'create' -> 애플리케이션이 시작될 때마다 데이터베이스 테이블을 새로 생성합니다.
+#    properties:
+#      hibernate:
+##        show_sql: true
+#        format_sql: true # SQL 쿼리를 포맷팅해서 보기 좋게 출력합니다.
+#  application:
+#    name: jpashop
 
 logging.level:
   org.hibernate.SQL: debug # hibernate로 생성되는 모든 SQL 쿼리를 디버깅 목적으로 로그를 통해 출력합니다.
   org.hibernate.orm.jdbc.bind: trace #쿼리의 변수정보를 확인하고 싶을 때
-
-server:
-  port: 8081

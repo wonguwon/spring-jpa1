@@ -1,4 +1,8 @@
 spring:
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+
   datasource:
     url: jdbc:h2:tcp://localhost/~/jpashop
     username: sa
@@ -12,6 +16,7 @@ spring:
       hibernate:
 #        show_sql: true
         format_sql: true # SQL 쿼리를 포맷팅해서 보기 좋게 출력합니다.
+
   application:
     name: jpashop
 
