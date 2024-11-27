@@ -53,4 +53,10 @@ public class MemberService {
     public Member findMember(Long id) {
         return memberRepository.findOne(id);
     }
+
+    public void update(Long id, String name) {
+        memberRepository
+                .findOne(id)
+                .setName(name);
+    }
 }
