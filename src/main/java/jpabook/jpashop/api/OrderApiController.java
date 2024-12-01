@@ -6,15 +6,22 @@ import jpabook.jpashop.domain.OrderItem;
 import jpabook.jpashop.domain.OrderStatus;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.OrderSearch;
+import jpabook.jpashop.repository.order.query.OrderFlatDto;
+import jpabook.jpashop.repository.order.query.OrderItemQueryDto;
+import jpabook.jpashop.repository.order.query.OrderQueryDto;
+import jpabook.jpashop.repository.order.query.OrderQueryRepository;
 import jpabook.jpashop.service.OrderService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * V1. 엔티티 직접 노출
@@ -37,11 +44,15 @@ import java.util.stream.Collectors;
  *
  */
 
+
+
+
 @RestController
 @RequiredArgsConstructor
 public class OrderApiController {
 
     private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
 
     /**
      * V1. 엔티티 직접 노출
@@ -68,18 +79,77 @@ public class OrderApiController {
         List<Order> all = orderRepository.findAllByString(new OrderSearch());
         List<OrderDto> result = all.stream()
                 .map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
+                .collect(toList());
         return result;
     }
 
+    /**
+     * 페이징불가
+     * 컬렉션 패치조인은 1번만 가능
+     */
     @GetMapping("/api/v3/orders")
     public List<OrderDto> ordersV3() {
         List<Order> orders = orderRepository.findAllWithItem();
         List<OrderDto> result = orders.stream()
                 .map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
+                .collect(toList());
         return result;
     }
+
+    /**
+     * V3.1 엔티티를 조회해서 DTO로 변환 페이징 고려
+     * - ToOne 관계만 우선 모두 페치 조인으로 최적화
+     * - 컬렉션 관계는 hibernate.default_batch_fetch_size, @BatchSize로 최적화
+     */
+    @GetMapping("/api/v3.1/orders")
+    public List<OrderDto> ordersV3_page(@RequestParam(value = "offset", defaultValue = "0") int offset,
+                                        @RequestParam(value = "limit", defaultValue = "100") int limit) {
+
+        List<Order> orders = orderRepository.findAllWithMemberDelivery(offset, limit);
+        List<OrderDto> result = orders.stream()
+                .map(o -> new OrderDto(o))
+                .collect(toList());
+
+        return result;
+    }
+
+    /*
+        JPA에서 DTO직접조회 -> 뷰에딱맞춰서 조회하기
+        N + 1문제 발생
+        Order먼저 조회 후 Item각각조회
+        단건조회일 경우 성능이 나쁘지않고 코드가독성이 좋기 때문에 v4가 괜찮다.
+     */
+    @GetMapping("/api/v4/orders")
+    public List<OrderQueryDto> ordersV4() {
+        return orderQueryRepository.findOrderQueryDtos();
+    }
+
+    /*
+        성능이 n+1에서 1+1로 성능최적화가 많이된다.
+        다만 코드가 조금 복잡해진다.
+        페이징하거나 데이터전체 전송같은 경우 v5사용
+     */
+    @GetMapping("/api/v5/orders")
+    public List<OrderQueryDto> ordersV5() {
+        return orderQueryRepository.findAllByDto_optimization();
+    }
+
+    /*
+        쿼리한번으로 전부가져와서 데이터정리를 메모리에서 해주는 방식으로
+        코드가 복잡해진다. 페이징도 불가하기 때문에 실무에서는 사용하기 힘듬
+     */
+    @GetMapping("/api/v6/orders")
+    public List<OrderQueryDto> ordersV6() {
+        List<OrderFlatDto> flats = orderQueryRepository.findAllByDto_flat();
+
+        return flats.stream()
+                .collect(groupingBy(o -> new OrderQueryDto(o.getOrderId(), o.getName(), o.getOrderDate(), o.getOrderStatus(), o.getAddress()),
+                        mapping(o -> new OrderItemQueryDto(o.getOrderId(), o.getItemName(), o.getOrderPrice(), o.getCount()), toList())
+                )).entrySet().stream()
+                .map(e -> new OrderQueryDto(e.getKey().getOrderId(), e.getKey().getName(), e.getKey().getOrderDate(), e.getKey().getOrderStatus(), e.getKey().getAddress(), e.getValue()))
+                .collect(toList());
+    }
+
 
     @Data
     static class OrderDto {
@@ -97,7 +167,7 @@ public class OrderApiController {
             address = order.getDelivery().getAddress();
             orderItems = order.getOrderItems().stream()
                     .map(orderItem -> new OrderItemDto(orderItem))
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
     }
     @Data

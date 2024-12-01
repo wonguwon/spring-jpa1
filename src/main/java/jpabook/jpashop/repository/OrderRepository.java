@@ -96,12 +96,26 @@ public class OrderRepository {
     }
 
     public List<Order> findAllWithItem() {
+        //join시에 order는 orderItem만큼 조회되는 갯수가 증가한다.
+        //distinct를 넣어주면 중복을 걸러준다.
+
+        //단점 패치조인시 페이징 불가
+        return entityManager.createQuery(
+                        "select distinct o from Order o" +
+                                " join fetch o.member m" +
+                                " join fetch o.delivery d" +
+                                " join fetch o.orderItems oi" +
+                                " join fetch oi.item i", Order.class)
+                .getResultList();
+    }
+
+    public List<Order> findAllWithMemberDelivery(int offset, int limit) {
         return entityManager.createQuery(
                         "select o from Order o" +
-                        " join fetch o.member m" +
-                        " join fetch o.delivery d" +
-                        " join fetch o.orderItems oi" +
-                        " join fetch oi.item i", Order.class)
+                                " join fetch o.member m" +
+                                " join fetch o.delivery d", Order.class)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
                 .getResultList();
     }
 }

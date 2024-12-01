@@ -16,6 +16,7 @@ spring:
       hibernate:
 #        show_sql: true
         format_sql: true # SQL 쿼리를 포맷팅해서 보기 좋게 출력합니다.
+        default_batch_fetch_size: 100 #순간 부하를 어느정도 견딜 수 있냐에 따라 100~1000
 
   application:
     name: jpashop
